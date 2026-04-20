@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Full Stack Experiments Dashboard</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f4f4f4;
+    text-align: center;
+}
+
+/* Dashboard */
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 50px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    width: 200px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+/* Sections */
+.section {
+    display: none;
+    margin-top: 20px;
+}
+
+.active {
+    display: block;
+}
+
+/* Common UI */
+button {
+    padding: 8px 12px;
+    margin: 10px;
+    background: blue;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Product Card */
+.product-card {
+    background: white;
+    padding: 20px;
+    width: 250px;
+    margin: auto;
+    border-radius: 10px;
+}
+
+.in-stock { color: green; }
+.out-stock { color: red; }
+
+/* Library */
+li {
+    background: white;
+    margin: 10px auto;
+    padding: 10px;
+    width: 300px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Person Cards */
+.person-card {
+    background: white;
+    margin: 10px auto;
+    padding: 10px;
+    width: 300px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Experiment Dashboard</h1>
+
+<!-- Dashboard -->
+<div class="container">
+    <div class="card" onclick="showSection('exp1')">Product Card</div>
+    <div class="card" onclick="showSection('exp2')">Library</div>
+    <div class="card" onclick="showSection('exp3')">Person Hierarchy</div>
+</div>
+
+<!-- ================= EXP 1 ================= -->
+<div id="exp1" class="section">
+    <h2>Product Card</h2>
+    <div class="product-card">
+        <h3>Phone</h3>
+        <p>₹10000</p>
+        <p id="stock" class="in-stock">In Stock</p>
+        <button onclick="toggleStock()">Toggle Stock</button>
+    </div>
+</div>
+
+<!-- ================= EXP 2 ================= -->
+<div id="exp2" class="section">
+    <h2>Library Management</h2>
+
+    <input type="text" id="search" placeholder="Search..." onkeyup="searchBooks()"><br>
+
+    <input type="text" id="bookName" placeholder="Book Name">
+    <input type="text" id="authorName" placeholder="Author">
+    <button onclick="addBook()">Add</button>
+
+    <ul id="bookList"></ul>
+</div>
+
+<!-- ================= EXP 3 ================= -->
+<div id="exp3" class="section">
+    <h2>Person Hierarchy</h2>
+    <button onclick="showPeople()">Show Data</button>
+    <div id="peopleOutput"></div>
+</div>
+
+<script>
+
+/* Navigation */
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+/* ================= EXP 1 ================= */
+let inStock = true;
+
+function toggleStock() {
+    let stock = document.getElementById("stock");
+
+    if (inStock) {
+        stock.innerText = "Out of Stock";
+        stock.className = "out-stock";
+    } else {
+        stock.innerText = "In Stock";
+        stock.className = "in-stock";
+    }
+
+    inStock = !inStock;
+}
+
+/* ================= EXP 2 ================= */
+let books = [
+    { name: "Harry Potter", author: "Rowling" },
+    { name: "Atomic Habits", author: "James Clear" }
+];
+
+function displayBooks(list = books) {
+    let ul = document.getElementById("bookList");
+    ul.innerHTML = "";
+
+    list.forEach((b, i) => {
+        ul.innerHTML += `<li>${b.name} - ${b.author}
+        <button onclick="removeBook(${i})">X</button></li>`;
+    });
+}
+
+function addBook() {
+    let name = document.getElementById("bookName").value;
+    let author = document.getElementById("authorName").value;
+
+    if (!name || !author) return alert("Fill all fields");
+
+    books.push({ name, author });
+    displayBooks();
+
+    document.getElementById("bookName").value = "";
+    document.getElementById("authorName").value = "";
+}
+
+function removeBook(i) {
+    books.splice(i, 1);
+    displayBooks();
+}
+
+function searchBooks() {
+    let val = document.getElementById("search").value.toLowerCase();
+
+    let filtered = books.filter(b =>
+        b.name.toLowerCase().includes(val)
+    );
+
+    displayBooks(filtered);
+}
+
+displayBooks();
+
+/* ================= EXP 3 ================= */
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+    getDetails() {
+        return `${this.name}, Age: ${this.age}`;
+    }
+}
+
+class Student extends Person {
+    constructor(name, age, course) {
+        super(name, age);
+        this.course = course;
+    }
+    getDetails() {
+        return `${this.name} (Student) - ${this.course}`;
+    }
+}
+
+class Teacher extends Person {
+    constructor(name, age, subject) {
+        super(name, age);
+        this.subject = subject;
+    }
+    getDetails() {
+        return `${this.name} (Teacher) - ${this.subject}`;
+    }
+}
+
+let people = [
+    new Student("Vansh", 20, "CSE"),
+    new Teacher("Sharma", 40, "Math"),
+    new Person("Rahul", 30)
+];
+
+function showPeople() {
+    let div = document.getElementById("peopleOutput");
+    div.innerHTML = "";
+
+    people.forEach(p => {
+        div.innerHTML += `<div class="person-card">${p.getDetails()}</div>`;
+    });
+}
+
+</script>
+
+</body>
+</html>
